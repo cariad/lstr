@@ -65,13 +65,16 @@ jobs:
         with:
           name: requirements
 
+      - id: pip-cache
+        run: echo "::set-output name=dir::$(pip cache dir)"
+
       - id: cache-pip
         uses: actions/cache@v1
         with:
           # A cache per Python version is less efficient, but stops parallel
           # runs trampling on each other.
           key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ hashFiles('requirements.txt') }}  # yamllint disable-line rule:line-length
-          path: ~/.cache/pip
+          path: ${{ steps.pip-cache.outputs.dir }}
 
       - if: steps.cache-pip.outputs.cache-hit != 'true'
         run: pip install -r requirements.txt
