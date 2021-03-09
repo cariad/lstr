@@ -12,6 +12,7 @@
     "pypi",
     "pytest",
     "refs",
+    "repr",
     "to",
     "venv",
     "virtualenvs",
