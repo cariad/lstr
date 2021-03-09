@@ -1,5 +1,6 @@
 {
   "cSpell.words": [
+    "bdist",
     "bruceadams",
     "cariad",
     "codecov",
@@ -14,6 +15,7 @@
     "to",
     "venv",
     "virtualenvs",
+    "wheel",
     "yamllint"
   ],
   "python.pythonPath": ".venv/bin/python3.9"
