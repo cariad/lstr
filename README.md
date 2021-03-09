@@ -1,4 +1,4 @@
-# lstr: Partially lockable Python Strings
+# lstr: partially lockable Python strings
 
 `lstr` is a Python package for partially lockable strings.
 
