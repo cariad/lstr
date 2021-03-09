@@ -1,3 +1,4 @@
+from logging import Logger
 from typing import List, Union
 
 from pytest import mark, raises
@@ -120,6 +121,22 @@ def test_write(
     assert ls.locks == expect_locks
 
 
+def test_repr() -> None:
+    value = lstr(
+        "Hello, world!",
+        locks=[
+            Lock(index=0, length=5),
+            Lock(index=12, length=1),
+        ],
+    )
+    assert repr(value) == (
+        ""
+        + "  0  1  2  3  4  5  6  7  8  9 10 11 12\n"
+        + "  H  e  l  l  o  ,     w  o  r  l  d  !\n"
+        + "  ^  ^  ^  ^  ^                       ^"
+    )
+
+
 @mark.parametrize(
     "index, distance, expect",
     [
@@ -138,3 +155,71 @@ def test_shift_locks(index: int, distance: int, expect: List[Lock]) -> None:
     ls = lstr("abcdef", locks=[Lock(1, 2), Lock(4, 2)])
     ls.shift_locks(index=index, distance=distance)
     assert ls.locks == expect
+
+
+@mark.parametrize(
+    "value, pattern, replacement, expect_success, expect",
+    [
+        (
+            lstr("cat cat!", locks=[Lock(index=7, length=1)]),  # !
+            r"c",
+            r"gre",
+            True,  # expect_success
+            lstr("great great!", locks=[Lock(index=11, length=1)]),
+        ),
+        (
+            lstr("cat cat!", locks=[Lock(index=7, length=1)]),  # !
+            r"!",
+            r"?",
+            False,  # expect_success
+            lstr("cat cat!", locks=[Lock(index=7, length=1)]),
+        ),
+        (
+            lstr(
+                "run `git` then `pipenv` please",
+                locks=[
+                    Lock(index=10, length=4),  # then
+                    Lock(index=25, length=6),  # please
+                ],
+            ),
+            r"`([^`]+)`",
+            r"\g<1>",
+            True,  # expect_success
+            lstr(
+                "run git then pipenv please",
+                locks=[
+                    Lock(index=8, length=4),  # then
+                    Lock(index=21, length=6),  # please
+                ],
+            ),
+        ),
+        (
+            lstr(
+                "run `git` then `pipenv` please",
+                locks=[
+                    Lock(index=15, length=8),  # `pipenv`
+                ],
+            ),
+            r"`([^`]+)`",
+            r"\g<1>",
+            False,  # expect_success
+            lstr(
+                "run `git` then `pipenv` please",
+                locks=[
+                    Lock(index=15, length=8),  # `pipenv`
+                ],
+            ),
+        ),
+    ],
+)
+def test_sub(
+    value: lstr,
+    pattern: str,
+    replacement: str,
+    expect_success: bool,
+    expect: lstr,
+    logger: Logger,
+) -> None:
+    success = value.sub(pattern=pattern, replacement=replacement)
+    assert success == expect_success
+    assert value == expect
