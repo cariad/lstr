@@ -27,7 +27,8 @@ jobs:
         with:
           fail_ci_if_error: true
 
-      - run: pipenv run ./build.sh "${GITHUB_REF##*/}"
+      - run: echo "${GITHUB_REF##*/}" > lstr/VERSION
+      - run: pipenv run python setup.py bdist_wheel
 
       - uses: actions/upload-artifact@v2
         with:
@@ -35,13 +36,8 @@ jobs:
           path: dist
           retention-days: 1
 
-
-  make_requirements:
-    container: cariad/ci:1.4.0
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v2
       - run: pipenv lock --dev --requirements > requirements.txt
+
       - uses: actions/upload-artifact@v2
         with:
           name: requirements
@@ -50,7 +46,7 @@ jobs:
 
 
   test:
-    needs: make_requirements
+    needs: build
     runs-on: ubuntu-20.04
     strategy:
       matrix:
@@ -80,14 +76,12 @@ jobs:
       - if: steps.cache-pip.outputs.cache-hit != 'true'
         run: pip install -r requirements.txt
 
-      - run: pytest
+      - run: python -m pytest
 
 
   publish_to_github:
     if: startsWith(github.ref, 'refs/tags')
-    needs:
-      - build
-      - test
+    needs: test
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/download-artifact@v2
@@ -113,9 +107,7 @@ jobs:
 
   publish_to_pypi:
     if: startsWith(github.ref, 'refs/tags')
-    needs:
-      - build
-      - test
+    needs: test
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/download-artifact@v2
