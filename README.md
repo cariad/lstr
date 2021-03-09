@@ -165,19 +165,19 @@ print(repr(greeting))
 
 Calling `str()` for an `lstr` instance will return the string value.
 
-### `can_sub(self, pattern: str, replacement: str) -> bool`
+### `can_sub(pattern: str, replacement: str) -> bool`
 
 `can_sub()` indicates whether or not the specified substitution will succeed for all instances.
 
-### `can_write(self, index: int, length: int) -> bool`
+### `can_write(index: int, length: int) -> bool`
 
 `can_write()` indicates whether or not the specified range can be overwritten.
 
-### `lock(self, index: int, length: int) -> None`
+### `lock(index: int, length: int) -> None`
 
 `lock()` describes a new locked range.
 
-### `sub(self, pattern: str, replacement: str, allow_partial: bool = False) -> bool`
+### `sub(pattern: str, replacement: str, allow_partial: bool = False) -> bool`
 
 `sub()` attempts to substitute all matching patterns with a replacement string.
 
@@ -187,7 +187,7 @@ Calling `str()` for an `lstr` instance will return the string value.
 
 `sub()` returns `True` if every matching instance of the pattern could be updated.
 
-### `write(self, value: str, index: int, length: int) -> bool`
+### `write(value: str, index: int, length: int) -> bool`
 
 `write()` attempts to write a new string into a range.
 
