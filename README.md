@@ -45,6 +45,14 @@ greeting.replace(" there", index=5, length=7)  # True
 print(greeting)  # "Hello there!"
 ```
 
+## Installation
+
+`lstr` requires Python 3.8 or later.
+
+```bash
+pip install lstr
+```
+
 ## Usage
 
 - `lstr(value: str, locks: List[Lock] = [])` requires a base string value, and optionally accepts a list of locks to apply.

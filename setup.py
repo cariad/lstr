@@ -46,7 +46,7 @@ setup(
     package_data={
         "lstr": ["py.typed"],
     },
-    python_requires=">=3.7",
+    python_requires=">=3.8",
     url="https://github.com/cariad/lstr",
     version=version,
 )
