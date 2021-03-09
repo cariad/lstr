@@ -1,6 +1,6 @@
-from typing import List
+from typing import List, Union
 
-from pytest import mark
+from pytest import mark, raises
 
 from lstr import Lock, lstr
 
@@ -27,6 +27,39 @@ from lstr import Lock, lstr
 )
 def test_can_replace(value: lstr, index: int, length: int, expect: bool) -> None:
     assert value.can_replace(index=index, length=length) == expect
+
+
+@mark.parametrize(
+    "x, y, expect",
+    [
+        (lstr("abc"), lstr("abc"), True),
+        (lstr("abc"), lstr("abcd"), False),
+        (lstr("abc"), lstr("abc", locks=[Lock(index=0, length=1)]), True),
+        (lstr("abc"), "abc", True),
+        (lstr("abc"), "abcd", False),
+    ],
+)
+def test_eq(x: lstr, y: Union[lstr, str], expect: bool) -> None:
+    assert (x == y) is expect
+
+
+def test_eq__not_implemented() -> None:
+    with raises(NotImplementedError) as ex:
+        lstr("abc") == 0
+    assert str(ex.value) == "Cannot compare lstr with int."
+
+
+@mark.parametrize(
+    "value, expect",
+    [
+        (lstr(""), 0),
+        (lstr("a"), 1),
+        (lstr("ab"), 2),
+        (lstr("abc"), 3),
+    ],
+)
+def test_len(value: lstr, expect: int) -> None:
+    assert len(value) == expect
 
 
 def test_lock() -> None:
