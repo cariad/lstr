@@ -1,4 +1,4 @@
-from typing import List
+from typing import Any, List
 
 from lstr.lock import Lock
 
@@ -15,6 +15,17 @@ class lstr:
     def __init__(self, value: str, locks: List[Lock] = []) -> None:
         self.value = value
         self.locks = locks
+
+    def __eq__(self, other: Any) -> bool:
+        if isinstance(other, lstr):
+            return self.value == other.value
+        if isinstance(other, str):
+            return self.value == other
+        other_type = type(other).__name__
+        raise NotImplementedError(f"Cannot compare lstr with {other_type}.")
+
+    def __len__(self) -> int:
+        return len(self.value)
 
     def __str__(self) -> str:
         return self.value
