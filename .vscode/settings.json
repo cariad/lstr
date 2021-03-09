@@ -1,8 +1,20 @@
 {
   "cSpell.words": [
+    "bruceadams",
     "cariad",
+    "codecov",
     "lstr",
-    "pytest"
+    "pipenv",
+    "pipfile",
+    "publish",
+    "pypa",
+    "pypi",
+    "pytest",
+    "refs",
+    "to",
+    "venv",
+    "virtualenvs",
+    "yamllint"
   ],
   "python.pythonPath": ".venv/bin/python3.9"
 }
