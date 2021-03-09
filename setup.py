@@ -40,10 +40,13 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     name="lstr",
+    packages=[
+        "lstr",
+    ],
     package_data={
         "lstr": ["py.typed"],
     },
-    python_requires=">=3.6",
+    python_requires=">=3.7",
     url="https://github.com/cariad/lstr",
     version=version,
 )
