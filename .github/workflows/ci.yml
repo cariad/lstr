@@ -57,7 +57,7 @@ jobs:
         with:
           name: distributable
 
-      - run: pipenv run pip install "$(ls *.whl)"
+      - run: pip install "$(ls *.whl)"
       - run: python tests/smoke.py
 
   publish_to_github:
