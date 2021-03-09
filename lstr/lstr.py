@@ -18,7 +18,7 @@ class lstr:
 
     def __eq__(self, other: Any) -> bool:
         if isinstance(other, lstr):
-            return self.value == other.value
+            return self.value == other.value and self.locks == other.locks
         if isinstance(other, str):
             return self.value == other
         other_type = type(other).__name__
@@ -30,17 +30,17 @@ class lstr:
     def __str__(self) -> str:
         return self.value
 
-    def can_replace(self, index: int, length: int) -> bool:
+    def can_write(self, index: int, length: int) -> bool:
         """
         Calculates whether or not the given range of this string can be
-        replaced.
+        overwritten.
 
         Arguments:
             index:  Start index.
             length: Length.
 
         Returns:
-            `True` if the range can be replaced, otherwise `False`.
+            `True` if the range can be overwritten, otherwise `False`.
         """
         if index < 0 or length < 0 or index + length > len(self.value):
             return False
@@ -59,19 +59,19 @@ class lstr:
         """
         self.locks.append(Lock(index=index, length=length))
 
-    def replace(self, value: str, index: int, length: int) -> bool:
+    def write(self, value: str, index: int, length: int) -> bool:
         """
-        Attempts to replace a given range with a new value.
+        Attempts to overwrite a given range with a new value.
 
         Arguments:
-            value:  Replacement string.
+            value:  String.
             index:  Start index.
             length: Length.
 
         Returns:
-            `True` if the replacement was permitted, otherwise `False`.
+            `True` if the overwrite was permitted, otherwise `False`.
         """
-        if not self.can_replace(index=index, length=length):
+        if not self.can_write(index=index, length=length):
             return False
         self.value = self.value[0:index] + value + self.value[index + length :]
         if distance := len(value) - length:

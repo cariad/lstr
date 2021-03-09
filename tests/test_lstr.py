@@ -25,8 +25,8 @@ from lstr import Lock, lstr
         (lstr("abcdef", locks=[Lock(2, 2)]), 4, 2, True),
     ],
 )
-def test_can_replace(value: lstr, index: int, length: int, expect: bool) -> None:
-    assert value.can_replace(index=index, length=length) == expect
+def test_can_write(value: lstr, index: int, length: int, expect: bool) -> None:
+    assert value.can_write(index=index, length=length) == expect
 
 
 @mark.parametrize(
@@ -34,7 +34,7 @@ def test_can_replace(value: lstr, index: int, length: int, expect: bool) -> None
     [
         (lstr("abc"), lstr("abc"), True),
         (lstr("abc"), lstr("abcd"), False),
-        (lstr("abc"), lstr("abc", locks=[Lock(index=0, length=1)]), True),
+        (lstr("abc"), lstr("abc", locks=[Lock(index=0, length=1)]), False),
         (lstr("abc"), "abc", True),
         (lstr("abc"), "abcd", False),
     ],
@@ -64,9 +64,9 @@ def test_len(value: lstr, expect: int) -> None:
 
 def test_lock() -> None:
     ls = lstr("abcdef")
-    assert ls.can_replace(index=0, length=1)
+    assert ls.can_write(index=0, length=1)
     ls.lock(index=0, length=1)
-    assert not ls.can_replace(index=0, length=1)
+    assert not ls.can_write(index=0, length=1)
 
 
 @mark.parametrize(
@@ -107,7 +107,7 @@ def test_lock() -> None:
         (6, 1, "??", "abcdef", [Lock(1, 2), Lock(4, 2)]),
     ],
 )
-def test_replace(
+def test_write(
     index: int,
     length: int,
     value: str,
@@ -115,7 +115,7 @@ def test_replace(
     expect_locks: List[Lock],
 ) -> None:
     ls = lstr("abcdef", locks=[Lock(1, 2), Lock(4, 2)])
-    ls.replace(index=index, length=length, value=value)
+    ls.write(index=index, length=length, value=value)
     assert str(ls) == expect
     assert ls.locks == expect_locks
 
