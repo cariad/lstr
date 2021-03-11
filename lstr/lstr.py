@@ -1,8 +1,8 @@
-from copy import deepcopy
 from logging import getLogger
-from re import search
+from re import finditer
 from typing import Any, List
 
+from lstr.amount import Amount
 from lstr.lock import Lock
 
 
@@ -54,21 +54,6 @@ class lstr:
     def __str__(self) -> str:
         return self.value
 
-    def can_sub(self, pattern: str, replacement: str) -> bool:
-        """
-        Determines whether or not all matches of a regular expression can be
-        substituted for a replacement.
-
-        Arguments:
-            pattern:     Regular expression.
-            replacement: String or expression expansion to replace with.
-
-        Returns:
-            `True` if all matches of the pattern can be substituted.
-        """
-        worker = deepcopy(self)
-        return worker.sub(pattern=pattern, replacement=replacement, allow_partial=True)
-
     def can_write(self, index: int, length: int) -> bool:
         """
         Determines whether or not a range can be overwritten.
@@ -97,7 +82,7 @@ class lstr:
         """
         self.locks.append(Lock(index=index, length=length))
 
-    def sub(self, pattern: str, replacement: str, allow_partial: bool = False) -> bool:
+    def sub(self, pattern: str, replacement: str) -> Amount:
         """
         Substitutes matches of a regular expression with a new value.
 
@@ -106,25 +91,15 @@ class lstr:
 
             replacement:   String or expression expansion to replace with.
 
-            allow_partial: If `True` then any matches within locked ranges will
-                           be skipped. If `False` then the string will be
-                           updated only if all instances can be updated.
-
         Returns:
-            `True` if all substitutions were successful.
+            Proportion of matches that were substituted.
         """
 
-        if not allow_partial:
-            if not self.can_sub(pattern=pattern, replacement=replacement):
-                return False
+        self.logger.debug('sub(): Starting "%s" => "%s".', pattern, replacement)
 
-        changed = False
+        amount = Amount.NOOP
 
-        while True:
-            match = search(pattern, self.value)
-            if not match:
-                self.logger.debug("No more matches: changed=%s", changed)
-                return changed
+        for match in reversed(list(finditer(pattern, self.value))):
 
             write_ok = self.write(
                 match.expand(replacement),
@@ -132,9 +107,24 @@ class lstr:
                 length=match.end() - match.start(),
             )
 
-            if not write_ok:
-                return False
-            changed = True
+            if write_ok:
+                if amount == Amount.NOOP:
+                    amount = Amount.ALL
+                elif amount == Amount.NONE:
+                    amount = Amount.SOME
+            else:
+                if amount == Amount.NOOP:
+                    amount = Amount.NONE
+                elif amount == Amount.ALL:
+                    amount = Amount.SOME
+
+        self.logger.debug(
+            'sub(): "%s" => "%s" completed with %s',
+            pattern,
+            replacement,
+            amount,
+        )
+        return amount
 
     def write(self, value: str, index: int, length: int) -> bool:
         """

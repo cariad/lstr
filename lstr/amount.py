@@ -6,6 +6,7 @@ class Amount(Enum):
     Vaguely but truthfully describes an amount.
     """
 
-    NONE = 0
-    SOME = 1
-    ALL = 2
+    NOOP = 0
+    NONE = 1
+    SOME = 2
+    ALL = 4
