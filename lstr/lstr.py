@@ -128,7 +128,7 @@ class lstr:
         )
         return amount
 
-    def write(self, value: str, index: int, length: int) -> bool:
+    def write(self, value: str, index: int, length: int = 0) -> bool:
         """
         Attempts to overwrite a given range with a new value.
 
