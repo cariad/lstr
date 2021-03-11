@@ -1,6 +1,6 @@
 from logging import getLogger
 from re import finditer
-from typing import Any, List
+from typing import Any, List, Optional
 
 from lstr.amount import Amount
 from lstr.lock import Lock
@@ -15,11 +15,11 @@ class lstr:
         locks: Ranges to lock. Further locks can be added via `lock()`.
     """
 
-    def __init__(self, value: str, locks: List[Lock] = []) -> None:
+    def __init__(self, value: str, locks: Optional[List[Lock]] = None) -> None:
         self.value = value
-        self.locks = locks
+        self.locks = locks or []
         self.logger = getLogger("lstr")
-        self.logger.debug('Created lstr("%s")', value)
+        self.logger.debug('Created lstr("%s") with locks: %s', value, self.locks)
 
     def __eq__(self, other: Any) -> bool:
         if isinstance(other, lstr):
@@ -82,17 +82,17 @@ class lstr:
         """
         self.locks.append(Lock(index=index, length=length))
 
-    def sub(self, pattern: str, replacement: str) -> Amount:
+    def sub(self, pattern: str, replacement: str, lock: bool = False) -> Amount:
         """
         Substitutes matches of a regular expression with a new value.
 
         Arguments:
-            pattern:       Regular expression.
-
-            replacement:   String or expression expansion to replace with.
+            pattern:     Regular expression.
+            replacement: String or expression expansion to replace with.
+            lock:        Lock the replacement.
 
         Returns:
-            Proportion of matches that were substituted.
+            Amount of matches that were substituted.
         """
 
         self.logger.debug('sub(): Starting "%s" => "%s".', pattern, replacement)
@@ -100,18 +100,20 @@ class lstr:
         amount = Amount.NOOP
 
         for match in reversed(list(finditer(pattern, self.value))):
+            index = match.start()
+            self.logger.debug("Found match at index %s.", index)
+            resolved = match.expand(replacement)
 
-            write_ok = self.write(
-                match.expand(replacement),
-                index=match.start(),
-                length=match.end() - match.start(),
-            )
+            write_ok = self.write(resolved, index=index, length=match.end() - index)
 
             if write_ok:
                 if amount == Amount.NOOP:
                     amount = Amount.ALL
                 elif amount == Amount.NONE:
                     amount = Amount.SOME
+
+                if lock:
+                    self.lock(index=index, length=len(resolved))
             else:
                 if amount == Amount.NOOP:
                     amount = Amount.NONE

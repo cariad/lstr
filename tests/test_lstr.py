@@ -190,3 +190,10 @@ def test_shift_locks(index: int, distance: int, expect: List[Lock]) -> None:
 def test_sub(value: lstr, expect_amount: Amount, expect: lstr, logger: Logger) -> None:
     assert value.sub(r"`([^`]+)`", r"\g<1>") == expect_amount
     assert value == expect
+
+
+def test_sub__lock(logger: Logger) -> None:
+    value = lstr("*this* is bold but `*this* isn't`")
+    assert value.sub(r"`([^`]+)`", r"\g<1>", lock=True)
+    assert value.sub(r"\*([^*]+)\*", r"<em>\g<1></em>")
+    assert str(value) == "<em>this</em> is bold but *this* isn't"
