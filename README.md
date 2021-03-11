@@ -10,7 +10,7 @@
 pip install lstr
 ```
 
-## Example
+## Examples
 
 ### Creating an lstr
 
@@ -18,26 +18,14 @@ pip install lstr
 from lstr import lstr
 
 greeting = lstr("Hello, world!")
-print(greeting)  # "Hello, world!"
+print(greeting)
 ```
 
-### Writing text
-
-One way to update an `lstr` is via `write()`. This will replace a specific range of characters with a new string.
-
-For example, to change "Hello" to "Hey", write `Hey` at index `0` for length `5`:
-
-```python
-from lstr import lstr
-
-greeting = lstr("Hello, world!")
-greeting.write("Hey", index=0, length=5)
-print(greeting)  # "Hey, world!"
+```text
+Hello, world!
 ```
 
 ### Getting help with indexes
-
-To get help figuring out exactly which character is at exactly which index, call `repr()` for your `lstr`:
 
 ```python
 from lstr import lstr
@@ -51,73 +39,92 @@ print(repr(greeting))
   H  e  l  l  o  ,     w  o  r  l  d  !
 ```
 
+### Inserting text
+
+```python
+from lstr import lstr
+
+greeting = lstr("Good morning, Bobby!")
+greeting.write("Captain ", index=14)
+print(greeting)
+```
+
+```text
+Good morning, Captain Bobby!
+```
+
+### Overwriting text
+
+```python
+from lstr import lstr
+
+greeting = lstr("Good morning, Captain Bobby!")
+greeting.write("Fleet Admiral", index=14, length=7)
+print(greeting)
+```
+
+```text
+Good morning, Fleet Admiral Bobby!
+```
+
 ### Substituting text
 
-The second method for updating an `lst` is via `sub()`. This will replace matches of a regular expression with a new string.
-
-To replace one substring with another:
-
 ```python
 from lstr import lstr
 
-greeting = lstr("Hello!")
-greeting.sub("l", "b")
-print(greeting)  # "Hebbo!"
+greeting = lstr("Good morning, Fleet Admiral Bobby!")
+greeting.sub("morning", "evening")
+print(greeting)
 ```
 
-To replace each match of a regular expression with a group's value:
-
-```python
-from lstr import lstr
-
-document = lstr("How *exciting!* So *bold!*")
-document.sub(r"\*([^*]+)\*", r"<em>\g<1></em>")
-print(document)  # "How <em>exciting!</em> So <em>bold!</em>"
+```text
+Good evening, Fleet Admiral Bobby!
 ```
 
-### Locking
-
-To prevent any changes to a region of the `lst`, lock it via `lock()`.
-
-To prevent changes to the word "Hello" in "Hello, world!" create a lock from index `0` for length `5`:
+### Substituting text with a regular expression
 
 ```python
 from lstr import lstr
 
-greeting = lstr("Hello, world!")
-
-print(repr(greeting))
-#  0  1  2  3  4  5  6  7  8  9 10 11 12
-#  H  e  l  l  o  ,     w  o  r  l  d  !
-
-greeting.lock(index=0, length=5)
+greeting = lstr("Good evening, Fleet Admiral Bobby!")
+greeting.sub(r"(Fleet Admiral)", r"🎉\g<1>🎉")
+print(greeting)
 ```
 
-Now any changes to that region will be denied:
-
-```python
-from lstr import lstr
-
-greeting = lstr("Hello, world!")
-greeting.lock(index=0, length=5)
-
-greeting.sub("Hello", "Hey")  # Amount.NONE
-print(greeting)  # "Hello, world!"
+```text
+Good evening, 🎉Fleet Admiral🎉 Bobby!
 ```
 
-Text outside of that region can still be updated
+### Locking a range
 
 ```python
 from lstr import lstr
 
-greeting = lstr("Hello, world!")
-greeting.lock(index=0, length=5)
+greeting = lstr("Good morning, Fleet Admiral Bobby!")
+greeting.lock(index=14, length=13)
 
-greeting.sub("Hello", "Hey")  # Amount.NONE
-print(greeting)  # "Hello, world!"
+greeting.write("Ensign", index=14, length=13)
+print(greeting)
+```
 
-greeting.sub("world", "there")  # Amount.ALL
-print(greeting)  # "Hello, there!"
+```text
+Good morning, Fleet Admiral Bobby!
+```
+
+### Locking a substitution
+
+```python
+from lstr import lstr
+
+greeting = lstr("Good morning, Captain Bobby!")
+greeting.sub("Captain", "Fleet Admiral", lock=True)
+greeting.sub("Fleet Admiral", "Ensign")
+
+print(greeting)
+```
+
+```text
+Good morning, Fleet Admiral Bobby!
 ```
 
 ### Equality
