@@ -10,7 +10,7 @@
 pip install lstr
 ```
 
-## Example
+## Examples
 
 ### Creating an lstr
 
@@ -18,26 +18,14 @@ pip install lstr
 from lstr import lstr
 
 greeting = lstr("Hello, world!")
-print(greeting)  # "Hello, world!"
+print(greeting)
 ```
 
-### Writing text
-
-One way to update an `lstr` is via `write()`. This will replace a specific range of characters with a new string.
-
-For example, to change "Hello" to "Hey", write `Hey` at index `0` for length `5`:
-
-```python
-from lstr import lstr
-
-greeting = lstr("Hello, world!")
-greeting.write("Hey", index=0, length=5)
-print(greeting)  # "Hey, world!"
+```text
+Hello, world!
 ```
 
 ### Getting help with indexes
-
-To get help figuring out exactly which character is at exactly which index, call `repr()` for your `lstr`:
 
 ```python
 from lstr import lstr
@@ -51,80 +39,93 @@ print(repr(greeting))
   H  e  l  l  o  ,     w  o  r  l  d  !
 ```
 
+### Inserting text
+
+```python
+from lstr import lstr
+
+greeting = lstr("Good morning, Bobby!")
+greeting.write("Captain ", index=14)
+print(greeting)
+```
+
+```text
+Good morning, Captain Bobby!
+```
+
+### Overwriting text
+
+```python
+from lstr import lstr
+
+greeting = lstr("Good morning, Captain Bobby!")
+greeting.write("Fleet Admiral", index=14, length=7)
+print(greeting)
+```
+
+```text
+Good morning, Fleet Admiral Bobby!
+```
+
 ### Substituting text
 
-The second method for updating an `lst` is via `sub()`. This will replace matches of a regular expression with a new string.
+```python
+from lstr import lstr
 
-To replace one substring with another:
+greeting = lstr("Good morning, Fleet Admiral Bobby!")
+greeting.sub("morning", "evening")
+print(greeting)
+```
+
+```text
+Good evening, Fleet Admiral Bobby!
+```
+
+### Substituting text with a regular expression
 
 ```python
 from lstr import lstr
 
-greeting = lstr("Hello!")
-greeting.sub("l", "b")
-print(greeting)  # "Hebbo!"
+greeting = lstr("Good evening, Fleet Admiral Bobby!")
+greeting.sub(r"(Fleet Admiral)", r"🎉\g<1>🎉")
+print(greeting)
 ```
 
-To replace each match of a regular expression with a group's value:
+```text
+Good evening, 🎉Fleet Admiral🎉 Bobby!
+```
+
+### Locking a range
 
 ```python
 from lstr import lstr
 
-document = lstr("How *exciting!* So *bold!*")
-document.sub(r"\*([^*]+)\*", r"<em>\g<1></em>")
-print(document)  # "How <em>exciting!</em> So <em>bold!</em>"
+greeting = lstr("Good morning, Fleet Admiral Bobby!")
+greeting.lock(index=14, length=13)
+
+greeting.write("Ensign", index=14, length=13)
+print(greeting)
 ```
 
-### Locking
+```text
+Good morning, Fleet Admiral Bobby!
+```
 
-To prevent any changes to a region of the `lst`, lock it via `lock()`.
-
-To prevent changes to the word "Hello" in "Hello, world!" create a lock from index `0` for length `5`:
+### Locking a substitution
 
 ```python
 from lstr import lstr
 
-greeting = lstr("Hello, world!")
+greeting = lstr("Good morning, Captain Bobby!")
+greeting.sub("Captain", "Fleet Admiral", lock=True)
+greeting.sub("Fleet Admiral", "Ensign")
 
-print(repr(greeting))
-#  0  1  2  3  4  5  6  7  8  9 10 11 12
-#  H  e  l  l  o  ,     w  o  r  l  d  !
-
-greeting.lock(index=0, length=5)
+print(greeting)
 ```
 
-Now any changes to that region will be denied:
-
-```python
-from lstr import lstr
-
-greeting = lstr("Hello, world!")
-greeting.lock(index=0, length=5)
-
-greeting.sub("Hello", "Hey")  # False
-print(greeting)  # "Hello, world!"
+```text
+Good morning, Fleet Admiral Bobby!
 ```
-
-Text outside of that region can still be updated
-
-```python
-from lstr import lstr
-
-greeting = lstr("Hello, world!")
-greeting.lock(index=0, length=5)
-
-greeting.sub("Hello", "Hey")  # False
-print(greeting)  # "Hello, world!"
-
-greeting.sub("world", "there")  # True
-print(greeting)  # "Hello, there!"
-```
-
-## `lstr` class
-
-### `lstr(value: str, locks: List[Lock] = [])`
-
-`lstr` must be created with a string value, and an optional list of `Lock` instances. Additional locks can be added later via the `lock()` method.
 
 ### Equality
 
@@ -141,61 +142,6 @@ lstr("f", locks=[Lock(index=1, length=2)]) != lstr("f", locks=[Lock(index=3, len
 lstr("f") == "f"
 lstr("f") != "g"
 ```
-
-### Length
-
-Calling `len()` for an `lstr` instance will return the length of the string value.
-
-### Repr
-
-Calling `repr()` for an `lstr` instance will return a string describing the index numbers, characters and locks.
-
-```python
-from lstr import lstr, Lock
-
-greeting = lstr("Hello, world!", locks=[Lock(index=0, length=5)])
-print(repr(greeting))
-
-#  0  1  2  3  4  5  6  7  8  9 10 11 12
-#  H  e  l  l  o  ,     w  o  r  l  d  !
-#  ^  ^  ^  ^  ^
-```
-
-### Str
-
-Calling `str()` for an `lstr` instance will return the string value.
-
-### `can_sub(pattern: str, replacement: str) -> bool`
-
-`can_sub()` indicates whether or not the specified substitution will succeed for all instances.
-
-### `can_write(index: int, length: int) -> bool`
-
-`can_write()` indicates whether or not the specified range can be overwritten.
-
-### `lock(index: int, length: int) -> None`
-
-`lock()` describes a new locked range.
-
-### `sub(pattern: str, replacement: str, allow_partial: bool = False) -> bool`
-
-`sub()` attempts to substitute all matching patterns with a replacement string.
-
-- `pattern` is the pattern to search for. This can be a simple string or a regular expression.
-- `replacement` is the string to replace matches with. This can be a simple string or an expression expansion to reference a matched group.
-- `allow_partial` indicates whether to allow only unlocked matches to be substituted (i.e. a partial update) or to require all matches to be in unlocked ranges (i.e. to force a full update or no update at all).
-
-`sub()` returns `True` if every matching instance of the pattern could be updated.
-
-### `write(value: str, index: int, length: int) -> bool`
-
-`write()` attempts to write a new string into a range.
-
-- `value` is the string to write.
-- `index` is the index to start writing at.
-- `length` is the length of the original string to overwrite. This can be `0` to insert the string without overwriting. If this length is shorter than the string being written then the base string will become shorter. Likewise, if this length is longer than the string will grow.
-
-`write()` returns `True` if the range could be written.
 
 ## Thank you! 🎉
 
