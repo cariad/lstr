@@ -1,5 +1,5 @@
 from typing import Any
-
+from logging import getLogger
 
 class Lock:
     """
@@ -11,8 +11,10 @@ class Lock:
     """
 
     def __init__(self, index: int, length: int) -> None:
+        self.logger = getLogger("Lock")
         self.index = index
         self.length = length
+        self.logger.debug('Created Lock(index=%s, length=%s)', index, length)
 
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, Lock):
@@ -57,6 +59,6 @@ class Lock:
             length: Length.
 
         Returns:
-            `True` if the range instersects, otherwise `False`.
+            `True` if the range intersects, otherwise `False`.
         """
         return not (self.is_earlier(index + length - 1) or self.is_later(index))
