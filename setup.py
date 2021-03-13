@@ -15,8 +15,9 @@ classifiers = [
     "Natural Language :: English",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
-    # "Typing :: Typed",
+    "Typing :: Typed",
 ]
 
 version = get_version()
