@@ -27,8 +27,7 @@ jobs:
         with:
           fail_ci_if_error: true
 
-      - run: echo "${GITHUB_REF##*/}" > lstr/VERSION
-      - run: pipenv run python setup.py bdist_wheel
+      - run: pipenv run ./build.sh "${GITHUB_REF##*/}"
 
       - uses: actions/upload-artifact@v2
         with:
