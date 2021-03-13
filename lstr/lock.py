@@ -11,7 +11,7 @@ class Lock:
     """
 
     def __init__(self, index: int, length: int) -> None:
-        self.logger = getLogger("Lock")
+        self.logger = getLogger("lstr")
         self.index = index
         self.length = length
         self.logger.debug('Created Lock(index=%s, length=%s)', index, length)
